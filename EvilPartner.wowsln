@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# WowAddOnStudio Solution File, Format Version 11.00
+VisualStudioVersion = 17.6.33712.159
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{E6E1D386-69D8-4755-9E61-0950293915FC}") = "EvilPartner", "EvilPartner.wowproj", "{D0636F98-EE20-4FFE-9236-C8AEA459AF3C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Default|Any CPU = Default|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D0636F98-EE20-4FFE-9236-C8AEA459AF3C}.Default|Any CPU.ActiveCfg = Default|Any CPU
+		{D0636F98-EE20-4FFE-9236-C8AEA459AF3C}.Default|Any CPU.Build.0 = Default|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D368791B-02F0-4EA3-9C0F-1CF1EC99C8D3}
+	EndGlobalSection
+EndGlobal

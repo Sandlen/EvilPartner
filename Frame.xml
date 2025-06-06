@@ -1,0 +1,799 @@
+<Ui xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="Frame.lua" />
+	<Frame name="evilButtonFrame" parent="Minimap" frameStrata="LOW" enableMouse="true">
+		<Size>
+			<AbsDimension x="32" y="32" />
+		</Size>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeTo="Minimap" relativePoint="RIGHT">
+				<Offset>
+					<AbsDimension x="2" y="0" />
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Frames>
+			<Button name="AtlasButton">
+				<Size>
+					<AbsDimension x="32" y="32" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						this:RegisterForDrag("RightButton");
+						this.dragme = false;
+					</OnLoad>
+					<OnDragStart>
+						this.dragme = true;
+					</OnDragStart>
+					<OnDragStop>
+						this.dragme = false;
+					</OnDragStop>
+					<OnUpdate>
+						if(this.dragme == true) then
+							evilButtonFrame_BeingDragged();
+						end
+					</OnUpdate>
+					<OnClick>
+						mainButtonFrame_OnClick();
+					</OnClick>
+					<OnEnter>
+						evilButtonFrame_OnEnter();
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+				<NormalTexture file="Interface\AddOns\EvilPartner\img\vmButton" />
+				<PushedTexture file="Interface\AddOns\EvilPartner\img\vmButton-pushed" />
+				<HighlightTexture file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight" alphaMode="ADD" />
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				this:RegisterEvent("VARIABLES_LOADED");
+			</OnLoad>
+			<OnEvent>
+				evilButtonFrame_Init();
+				evilButtonFrame_UpdatePosition();
+			</OnEvent>
+		</Scripts>
+	</Frame>
+	<Frame name="mainFrame" parent="UIParent" toplevel="true" movable="true" enableMouse="true">
+		<Size x="136" y="414" />
+		<Anchors>
+			<Anchor point="TOP">
+				<Offset x="166" y="-222" />
+			</Anchor>
+		</Anchors>
+		<Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="1" right="1" top="1" bottom="1" />
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="32" />
+			</TileSize>
+			<EdgeSize val="15" />
+			<Color a="100" />
+		</Backdrop>
+		<Frames>
+			<Frame name="EvilPartnerStatusFrame" parent="mainFrame" hidden="true" >
+				<Size>
+					<AbsDimension x="21" y="10" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="55" y="-394" />
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString name="$parentText" inherits="GameFontNormal" text="on">
+							<Size x="24" y="11"/>
+							<Color r="0" g="0.8" b="1"/>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+			<Button name="ClassesSet" inherits="UIPanelButtonTemplate" text="Class">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="9" y="-23" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						Classes_Load();
+					</OnLoad>
+					<OnClick>
+						ToggleDropDownMenu(1, nil, ClassesSet, ClassesSet, 0, 0);
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="RoleSet" inherits="UIPanelButtonTemplate">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="68" y="-23" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						Role_Load();
+					</OnLoad>
+					<OnClick>
+						ToggleDropDownMenu(1, nil, RoleSet, RoleSet, 0, 0);
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="MarksSet" inherits="UIPanelButtonTemplate">
+				<Size x="80" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="9" y="-129" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						Marks_Load();
+					</OnLoad>
+					<OnClick>
+						ToggleDropDownMenu(1, nil, MarksSet, MarksSet, 0, 0);
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotAdd" inherits="UIPanelButtonTemplate" text="AddBot">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="9" y="-54" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotAddBot();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotRemove" inherits="UIPanelButtonTemplate" text="Remove">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="68" y="-54" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotRemove()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotFreeLoot" inherits="UIPanelButtonTemplate" text="FreeLoot">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="9" y="-79" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotFreeLoot()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotChangeRole" inherits="UIPanelButtonTemplate" text="ChRole">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="68" y="-79" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotChangeRole();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotRaid" inherits="UIPanelButtonTemplate" text="Raid">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="9" y="-104" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotRaid()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotLeave" inherits="UIPanelButtonTemplate" text="Leave">
+				<Size x="40" y="15" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="84" y="-8" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotLeave()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotUseAltar" inherits="UIPanelButtonTemplate" text="Altar">
+				<Size x="35" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="88" y="-160" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotUseAltar()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotFocusAdd" inherits="UIPanelButtonTemplate" text="Focus">
+				<Size x="35" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="9" y="-160" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotFocusAdd();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotClearFocus" inherits="UIPanelButtonTemplate" text="CFoc">
+				<Size x="35" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="49" y="-160" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotClearFocus();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotControlsSelf" inherits="UIPanelButtonTemplate" text="ContrSelf">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="9" y="-185" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotControlsSelf();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotControlsAll" inherits="UIPanelButtonTemplate" text="ContrAll">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="68" y="-185" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotControlsAll();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotItl" inherits="UIPanelButtonTemplate" text="Itl">
+				<Size x="30" y="15" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="9" y="-8" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotItl()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotPS" inherits="UIPanelButtonTemplate" text="P/S">
+				<Size x="30" y="15" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="40" y="-8" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotPS()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotChLead" inherits="UIPanelButtonTemplate" text="ChL">
+				<Size x="35" y="32" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="89" y="-129" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotChLead()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotStay" inherits="UIPanelButtonTemplate" text="Stay">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="9" y="-210" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotStay()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotMove" inherits="UIPanelButtonTemplate" text="Move">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="68" y="-210" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotMove()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotClone" inherits="UIPanelButtonTemplate" text="Clone">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="68" y="-104" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotClone()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotPause" inherits="UIPanelButtonTemplate" text="Pause">
+				<Size x="58" y="35" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="9" y="-234" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotPause()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotUnPause" inherits="UIPanelButtonTemplate" text="UnPause">
+				<Size x="58" y="35" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="68" y="-234" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotUnPause()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotAOE" inherits="UIPanelButtonTemplate" text="AOE">
+				<Size x="119" y="35" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="9" y="-319" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotAOE()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotCloseFrame" inherits="UIPanelButtonTemplate" text="Close">
+				<Size x="38" y="15" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="86" y="-392" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotCloseFrame()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotPauseDPS" inherits="UIPanelButtonTemplate" text="Pdps">
+				<Size x="35" y="15" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="10" y="-269" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotPauseDPS()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotPauseHeal" inherits="UIPanelButtonTemplate" text="Pheal">
+				<Size x="35" y="15" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="50" y="-269" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotPauseHeal()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotHold" inherits="UIPanelButtonTemplate" text="Hold">
+				<Size x="35" y="15" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="89" y="-269" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotHold()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotComeToMe" inherits="UIPanelButtonTemplate" text="ComeToMe">
+				<Size x="119" y="42" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="9" y="-351" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotComeToMe()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotMore" inherits="UIPanelButtonTemplate" text="more">
+				<Size x="35" y="15" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="9" y="-392" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotMore()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="ComeToMeHeal" inherits="UIPanelButtonTemplate" text="Cheal">
+				<Size x="35" y="35" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="50" y="-285" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						ComeToMeHeal()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="ComeToMeDPS" inherits="UIPanelButtonTemplate" text="Cdps">
+				<Size x="35" y="35" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="11" y="-285" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						ComeToMeDPS()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="ComeToMeTank" inherits="UIPanelButtonTemplate" text="Ctank">
+				<Size x="35" y="35" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="89" y="-285" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						ComeToMeTank()
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				mainFrame:RegisterForDrag("LeftButton");mainFrame:Hide();this:RegisterEvent("PLAYER_LOGIN");
+			</OnLoad>
+			<OnDragStart>
+				mainFrame:StartMoving();
+			</OnDragStart>
+			<OnDragStop>
+				mainFrame:StopMovingOrSizing();
+			</OnDragStop>
+		</Scripts>
+	</Frame>
+	<Frame name="moreFrame" parent="UIParent" toplevel="true" movable="true" enableMouse="true">
+		<Size x="136" y="50" />
+		<Anchors>
+			<Anchor point="TOP">
+				<Offset x="-105" y="-612" />
+			</Anchor>
+		</Anchors>
+		<Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="1" right="1" top="1" bottom="1" />
+			</BackgroundInsets>
+			<TileSize val="32" />
+			<EdgeSize val="15" />
+			<Color a="100" />
+		</Backdrop>
+		<Frames>
+			<Button name="PartyBotResetInstances" inherits="UIPanelButtonTemplate" text="Reset">
+				<Size x="35" y="15" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="10" y="-7" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotResetInstances()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotReloadUI" inherits="UIPanelButtonTemplate" text="Reload">
+				<Size x="35" y="15" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="50" y="-7" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotReloadUI()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotDeleteGray" inherits="UIPanelButtonTemplate" text="DGray">
+				<Size x="35" y="15" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="91" y="-7" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotDeleteGray()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotPlayed" inherits="UIPanelButtonTemplate" text="Played">
+				<Size x="35" y="15" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="10" y="-28" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotPlayed()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotRoll" inherits="UIPanelButtonTemplate" text="Roll">
+				<Size x="35" y="15" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="50" y="-28" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotRoll()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="PartyBotFPS" inherits="UIPanelButtonTemplate" text="FPS">
+				<Size x="35" y="15" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="91" y="-28" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PartyBotFPS()
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				moreFrame:RegisterForDrag("LeftButton");moreFrame:Hide();this:RegisterEvent("PLAYER_LOGIN");
+			</OnLoad>
+			<OnDragStart>
+				moreFrame:StartMoving();
+			</OnDragStart>
+			<OnDragStop>
+				moreFrame:StopMovingOrSizing();
+			</OnDragStop>
+		</Scripts>
+	</Frame>
+	<Frame name="psFrame" parent="UIParent" toplevel="true" movable="true" enableMouse="true">
+		<Size x="135" y="170" />
+		<Anchors>
+			<Anchor point="TOP">
+				<Offset x="-9" y="-325" />
+			</Anchor>
+		</Anchors>
+		<Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="1" right="1" top="1" bottom="1" />
+			</BackgroundInsets>
+			<TileSize val="32" />
+			<EdgeSize val="15" />
+			<Color a="100" />
+		</Backdrop>
+		<Frames>
+			<Button name="BlessingsSet" inherits="UIPanelButtonTemplate" text="Bless">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="8" y="-7" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						Blessings_Load();
+					</OnLoad>
+					<OnClick>
+						ToggleDropDownMenu(1, nil, BlessingsSet, BlessingsSet, 0, 0);
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="AurasSet" inherits="UIPanelButtonTemplate" text="Aura">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="69" y="-7" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						Auras_Load();
+					</OnLoad>
+					<OnClick>
+						ToggleDropDownMenu(1, nil, AurasSet, AurasSet, 0, 0);
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="AcceptPal" inherits="UIPanelButtonTemplate" text="AcceptPal">
+				<Size x="120" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="8" y="-38" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						AcceptPal()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="AtotemsSet" inherits="UIPanelButtonTemplate" text="Air">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="9" y="-69" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						Atotems_Load();
+					</OnLoad>
+					<OnClick>
+						ToggleDropDownMenu(1, nil, AtotemsSet, AtotemsSet, 0, 0);
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="EtotemsSet" inherits="UIPanelButtonTemplate" text="Earth">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="70" y="-69" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						Etotems_Load();
+					</OnLoad>
+					<OnClick>
+						ToggleDropDownMenu(1, nil, EtotemsSet, EtotemsSet, 0, 0);
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="FtotemsSet" inherits="UIPanelButtonTemplate" text="Fire">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="9" y="-99" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						Ftotems_Load();
+					</OnLoad>
+					<OnClick>
+						ToggleDropDownMenu(1, nil, FtotemsSet, FtotemsSet, 0, 0);
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="WtotemsSet" inherits="UIPanelButtonTemplate" text="Water">
+				<Size x="58" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="69" y="-99" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						Wtotems_Load();
+					</OnLoad>
+					<OnClick>
+						ToggleDropDownMenu(1, nil, WtotemsSet, WtotemsSet, 0, 0);
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="AcceptSham" inherits="UIPanelButtonTemplate" text="AcceptSham">
+				<Size x="120" y="25" />
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="8" y="-131" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						AcceptSham()
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				psFrame:RegisterForDrag("LeftButton");psFrame:Hide();this:RegisterEvent("PLAYER_LOGIN");
+			</OnLoad>
+			<OnDragStart>
+				psFrame:StartMoving();
+			</OnDragStart>
+			<OnDragStop>
+				psFrame:StopMovingOrSizing();
+			</OnDragStop>
+		</Scripts>
+	</Frame>
+</Ui>
