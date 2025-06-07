@@ -430,10 +430,18 @@ SlashCmdList["EPLIVE"] = function(msg)
     elseif msg == "off" then
         EvilPartnerDB.live = false
         ReloadUI()
-    elseif msg == "st" then        
-        print("Текущее состояние: " .. (EvilPartnerDB.live and "ВКЛ" or "ВЫКЛ"))
-    else
-        print("Использование: /eplive [on|off|st]")
+    elseif msg == "st" then
+        local status, r, g, b
+        if EvilPartnerDB.live then
+            status = "ВКЛ"
+            r, g, b = 0, 1, 0
+        else
+            status = "ВЫКЛ"
+            r, g, b = 1, 0.5, 0
+        end
+        DEFAULT_CHAT_FRAME:AddMessage("Текущее состояние: " .. status, r, g, b)
+    else        
+        DEFAULT_CHAT_FRAME:AddMessage("Использование: /eplive [on|off|st]", 0.2, 0.6, 1)
     end
 end
 
